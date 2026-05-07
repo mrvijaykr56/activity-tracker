@@ -10,6 +10,8 @@ import { LoadingService } from 'src/app/service/loading.service';
 import { NotificationService } from 'src/app/service/notification.service';
 import { ConfirmService } from 'src/app/service/confirm.service';
 
+import { CommunityService } from 'src/app/service/community.service';
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -18,6 +20,15 @@ import { ConfirmService } from 'src/app/service/confirm.service';
 export class HomeComponent implements OnInit, OnDestroy {
   user: any = null;
   private unsubscribeAll: Subject<void> = new Subject<void>();
+
+  // Preview Data for Guest Landing
+  communityStats: any = null;
+  leaderboard: any[] = [];
+  mockActivities = [
+    { activityName: 'Morning Yoga', category: 'EXERCISE', timeDuration: '00:30', date: '2026-05-07', days: 'THURSDAY' },
+    { activityName: 'Deep Work Session', category: 'WORK', timeDuration: '02:00', date: '2026-05-07', days: 'THURSDAY' },
+    { activityName: 'Guitar Practice', category: 'HOBBY', timeDuration: '00:45', date: '2026-05-06', days: 'WEDNESDAY' }
+  ];
 
   // Reactive Form
   activityForm: FormGroup;
@@ -47,7 +58,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     private router: Router,
     private loadingService: LoadingService,
     private notificationService: NotificationService,
-    private confirmService: ConfirmService
+    private confirmService: ConfirmService,
+    private communityService: CommunityService
   ) {
     this.user = this.globalUserService.getUser();
     this.activityForm = this.fb.group({
@@ -63,7 +75,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     if (this.isLoggedIn()) {
       this.fetchSavedActivityList();
+    } else {
+      this.fetchPublicData();
     }
+  }
+
+  fetchPublicData(): void {
+    this.communityService.getCommunityStats().subscribe({
+      next: (response) => this.communityStats = response.data
+    });
+    this.communityService.getLeaderboard().subscribe({
+      next: (response) => this.leaderboard = response.data
+    });
   }
 
   isLoggedIn(): boolean {
@@ -225,6 +248,43 @@ export class HomeComponent implements OnInit, OnDestroy {
       },
       error: () => {}
     });
+  }
+
+  exportToCsv(): void {
+    if (this.savedActivityListData.length === 0) {
+      this.notificationService.warning('No activities to export!');
+      return;
+    }
+
+    // CSV Headers
+    const headers = ['Activity Name', 'Category', 'Duration', 'Date', 'Day'];
+    
+    // Fetch all data for export (since current list is paginated)
+    // For simplicity, we'll export the currently visible page or fetch all if possible.
+    // In a real app, you'd call a special "export" endpoint.
+    // Here we'll export the current list as a demonstration.
+    
+    const csvRows = this.savedActivityListData.map(activity => [
+      `"${activity.activityName}"`,
+      `"${activity.category}"`,
+      `"${activity.timeDuration}"`,
+      `"${activity.date}"`,
+      `"${activity.days}"`
+    ].join(','));
+
+    const csvContent = [headers.join(','), ...csvRows].join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `activities_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    this.notificationService.success('Activities exported to CSV successfully!');
   }
 
   ngOnDestroy(): void {

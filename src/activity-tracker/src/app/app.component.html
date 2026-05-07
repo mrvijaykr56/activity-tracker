@@ -5,9 +5,25 @@
 <div class="app-root-wrapper">
   <app-header></app-header>
   
-  <main class="main-content">
-    <router-outlet></router-outlet>
+  <main class="main-content" [@routeAnimations]="prepareRoute(outlet)">
+    <router-outlet #outlet="outlet"></router-outlet>
   </main>
 
   <app-footer></app-footer>
+  
+  <!-- Mobile Navigation Bar -->
+  <div class="mobile-nav d-md-none" *ngIf="isLoggedIn()">
+    <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}">
+      <i class="bi bi-house-door"></i>
+      <span>Home</span>
+    </a>
+    <a routerLink="/dashboard" routerLinkActive="active">
+      <i class="bi bi-bar-chart"></i>
+      <span>Stats</span>
+    </a>
+    <a (click)="logout()">
+      <i class="bi bi-box-arrow-right"></i>
+      <span>Exit</span>
+    </a>
+  </div>
 </div>

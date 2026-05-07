@@ -1,0 +1,21 @@
+.chart-container {
+    width: 100%;
+    max-width: 100%;
+}
+
+.glass-card {
+    transition: var(--transition);
+}
+
+.glass-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.badge {
+    border-radius: 1rem;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+}

@@ -404,3 +404,99 @@ p {
   height: 50px;
   border-radius: 50%;
 }
+
+/* Mobile Navigation */
+.mobile-nav {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 1.5rem;
+  right: 1.5rem;
+  background: rgba(15, 23, 42, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2rem;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  z-index: 1000;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.mobile-nav a {
+  color: var(--text-muted);
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+  gap: 0.25rem;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
+.mobile-nav a i {
+  font-size: 1.4rem;
+}
+
+.mobile-nav a.active {
+  color: var(--text-primary);
+  text-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.mobile-nav a:hover {
+  color: var(--text-primary);
+}
+
+.bg-bronze { background-color: #cd7f32 !important; color: white; }
+.bg-white-bg-opacity-05 { background-color: rgba(255, 255, 255, 0.05) !important; }
+
+.hover-effect {
+  transition: var(--transition);
+}
+
+.hover-effect:hover {
+  transform: translateY(-5px);
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+.heatmap-cell {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+}
+
+.heatmap-cell.small {
+  width: 10px;
+  height: 10px;
+}
+
+.heatmap-cell.active {
+  background: rgba(99, 102, 241, 0.4);
+  border-color: rgba(99, 102, 241, 0.2);
+}
+
+.heatmap-cell.intense {
+  background: var(--primary-gradient);
+  border-color: rgba(99, 102, 241, 0.4);
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.2);
+}
+
+.heatmap-cell:hover {
+  transform: scale(1.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  z-index: 1;
+}
+
+@media (max-width: 768px) {
+  body {
+    padding-bottom: 7rem;
+  }
+}
+

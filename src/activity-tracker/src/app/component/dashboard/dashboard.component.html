@@ -1,0 +1,246 @@
+<div class="main-container animate-fade-in">
+    <div class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <div class="d-flex align-items-center gap-3 mb-2">
+                <h1 class="gradient-text mb-0">Your Dashboard</h1>
+                <span *ngIf="gamificationData?.level" class="badge bg-info bg-opacity-25 text-info px-3 py-2 animate-fade-in" style="font-size: 1rem;">
+                    Level {{ gamificationData.level }}
+                </span>
+            </div>
+            <p class="text-readable-secondary">Visualize your progress and stay motivated with AI insights.</p>
+        </div>
+        <a routerLink="/home" class="glass-btn" aria-label="Back to Activity Tracker">
+            <i class="bi bi-arrow-left" aria-hidden="true"></i> Back to Tracker
+        </a>
+    </div>
+
+    <!-- Skeleton Loading State -->
+    <div *ngIf="isLoading" class="row g-4">
+        <div class="col-12 mb-4">
+            <div class="glass-card p-4 skeleton-card">
+                <div class="skeleton-box mb-3" style="width: 200px; height: 30px;"></div>
+                <div class="row g-3">
+                    <div class="col-md-4"><div class="skeleton-box" style="height: 60px;"></div></div>
+                    <div class="col-md-4"><div class="skeleton-box" style="height: 60px;"></div></div>
+                    <div class="col-md-4"><div class="skeleton-box" style="height: 60px;"></div></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6"><div class="glass-card p-4 skeleton-card" style="height: 350px;"></div></div>
+        <div class="col-md-6"><div class="glass-card p-4 skeleton-card" style="height: 350px;"></div></div>
+    </div>
+
+    <!-- AI Coaching Section -->
+    <div *ngIf="!isLoading && wellnessTips.length > 0" class="row mb-5 animate-fade-in">
+        <div class="col-12">
+            <div class="glass-card p-4 border-primary" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);">
+                <div class="d-flex align-items-center gap-3 mb-3">
+                    <i class="bi bi-robot fs-2 text-primary" aria-hidden="true"></i>
+                    <h3 class="mb-0">AI Wellness Insights</h3>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-4" *ngFor="let tip of wellnessTips">
+                        <div class="p-3 rounded-4 h-100" [style.background]="'rgba(255,255,255,0.03)'">
+                            <i class="bi bi-lightbulb text-warning me-2" aria-hidden="true"></i>
+                            <span class="small">{{ tip }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="!isLoading && summaryData" class="row g-4">
+        <!-- Stats Row -->
+        <div class="col-md-4">
+            <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
+                <i class="bi bi-fire mb-3 fs-1 text-danger" aria-hidden="true"></i>
+                <h3 class="mb-1">{{ gamificationData?.streak || 0 }} Days</h3>
+                <p class="text-muted mb-0">Current Streak</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
+                <i class="bi bi-activity mb-3 fs-1 text-primary" aria-hidden="true"></i>
+                <h3 class="mb-1">{{ summaryData.totalActivities }}</h3>
+                <p class="text-muted mb-0">Total Activities</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
+                <i class="bi bi-trophy mb-3 fs-1 text-warning" aria-hidden="true"></i>
+                <h3 class="mb-1">{{ gamificationData?.badges?.length || 0 }}</h3>
+                <p class="text-muted mb-0">Earned Badges</p>
+            </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100">
+                <h3 class="mb-4">Weekly Trends</h3>
+                <div class="chart-container" style="position: relative; height:300px;">
+                    <canvas #trendChart aria-label="Weekly Activity Trends Chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="glass-card p-4 h-100">
+                <h3 class="mb-4">Activity Distribution</h3>
+                <div class="chart-container" style="position: relative; height:300px;">
+                    <canvas #categoryChart aria-label="Activity Category Distribution Chart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Integration Row -->
+        <div class="col-md-4">
+            <div class="glass-card p-4 h-100">
+                <h3 class="mb-3">Wearable Sync</h3>
+                <p class="text-muted small mb-4">Connect your devices to automate your tracking.</p>
+                
+                <div class="d-grid gap-2 mb-4">
+                    <button class="glass-btn d-flex align-items-center justify-content-center gap-2" (click)="onSync('Apple Health')" [disabled]="isSyncing" aria-label="Sync Apple Health">
+                        <i class="bi bi-apple"></i> Sync Apple Health
+                    </button>
+                    <button class="btn btn-outline-light rounded-pill d-flex align-items-center justify-content-center gap-2" (click)="onSync('Fitbit')" [disabled]="isSyncing" aria-label="Sync Fitbit">
+                        <i class="bi bi-heart-pulse"></i> Sync Fitbit
+                    </button>
+                </div>
+
+                <div *ngIf="isSyncing" class="text-center py-2">
+                    <div class="spinner-border spinner-border-sm text-primary me-2" role="status"></div>
+                    <span class="small">Fetching device data...</span>
+                </div>
+
+                <div *ngIf="syncResult" class="alert alert-success bg-opacity-10 border-0 text-success small mb-0 animate-fade-in">
+                    <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
+                    Synced {{ syncResult.syncedActivities }} new activities!
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="glass-card p-4 h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">Global Leaderboard</h3>
+                    <span class="badge bg-primary bg-opacity-25 text-primary px-3 py-2">Community Ranks</span>
+                </div>
+                
+                <div class="table-responsive">
+                    <table class="table table-borderless text-white mb-0" aria-label="Community Leaderboard">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Level</th>
+                                <th class="text-end">Total Activities</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let entry of leaderboard; let i = index" [class.bg-white]="i === 0" [style.--bs-bg-opacity]="i === 0 ? '0.05' : '0'">
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        <span class="badge" [class.bg-warning]="i === 0" [class.bg-secondary]="i === 1" [class.bg-bronze]="i === 2" [class.bg-dark]="i > 2">
+                                            #{{ i + 1 }}
+                                        </span>
+                                        {{ entry.username }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="badge bg-info bg-opacity-10 text-info">Lvl {{ entry.level }}</span>
+                                </td>
+                                <td class="text-end fw-bold">{{ entry.activityCount }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Goals Section -->
+        <div class="col-12">
+            <div class="glass-card p-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h3 class="mb-0">Weekly Goals</h3>
+                    <div class="d-flex gap-2">
+                        <select class="glass-input py-2 px-3" [(ngModel)]="newGoal.category" style="width: auto;" aria-label="Select Category for New Goal">
+                            <option value="" disabled>Category</option>
+                            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                        </select>
+                        <input type="number" class="glass-input py-2 px-3" [(ngModel)]="newGoal.targetCount" min="1" style="width: 80px;" aria-label="Target Count">
+                        <button class="glass-btn py-2 px-3" (click)="onSetGoal()" [disabled]="isSettingGoal" aria-label="Set Goal">
+                            <i class="bi bi-plus-lg"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row g-4" *ngIf="goals.length > 0">
+                    <div class="col-md-6" *ngFor="let goal of goals">
+                        <div class="p-3 rounded-4" [style.background]="'rgba(255,255,255,0.03)'">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="fw-bold">{{ goal.category }}</span>
+                                <span class="text-muted">{{ goal.currentCount }} / {{ goal.targetCount }}</span>
+                            </div>
+                            <div class="progress" style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                                <div class="progress-bar progress-bar-animated" role="progressbar" 
+                                     [style.width.%]="getProgressPercentage(goal)"
+                                     [class.bg-success]="getProgressPercentage(goal) >= 100"
+                                     [class.bg-primary]="getProgressPercentage(goal) < 100"
+                                     [attr.aria-valuenow]="getProgressPercentage(goal)" aria-valuemin="0" aria-valuemax="100"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="goals.length === 0" class="text-center py-4">
+                    <p class="text-muted mb-0">No goals set yet. Start by choosing a category above!</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Badges Section -->
+        <div class="col-12" *ngIf="gamificationData?.badges?.length > 0">
+            <div class="glass-card p-4">
+                <h3 class="mb-4">Your Achievements</h3>
+                <div class="row g-3">
+                    <div class="col-md-3 col-6" *ngFor="let badge of gamificationData.badges">
+                        <div class="text-center p-3 rounded-4" [style.background]="'rgba(255,255,255,0.03)'">
+                            <div class="badge-icon mb-2">
+                                <i class="bi {{ badge.icon }} fs-1 text-{{ badge.color }}" aria-hidden="true"></i>
+                            </div>
+                            <h5 class="mb-1">{{ badge.name }}</h5>
+                            <p class="small text-muted mb-0">{{ badge.description }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Consistency Heatmap -->
+        <div class="col-12 mt-4">
+            <div class="glass-card p-4 animate-fade-in" style="animation-delay: 0.6s">
+                <h4 class="mb-4 d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar3 text-primary"></i>
+                    Activity Consistency
+                </h4>
+                <div class="d-flex flex-wrap gap-2 justify-content-center py-2">
+                    <div *ngFor="let day of [].constructor(28); let i = index" 
+                         class="heatmap-cell" 
+                         [class.active]="i % 3 === 0" 
+                         [class.intense]="i % 7 === 0"
+                         [title]="'Day ' + (i + 1) + ': ' + (i % 3 === 0 ? 'Logged' : 'No Activity')">
+                    </div>
+                </div>
+                <div class="d-flex justify-content-between mt-3 small text-readable-secondary px-2">
+                    <span>Less</span>
+                    <div class="d-flex gap-1 align-items-center">
+                        <div class="heatmap-cell small"></div>
+                        <div class="heatmap-cell small active"></div>
+                        <div class="heatmap-cell small intense"></div>
+                    </div>
+                    <span>More</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

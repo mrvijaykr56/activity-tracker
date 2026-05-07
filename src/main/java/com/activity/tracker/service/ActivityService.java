@@ -65,4 +65,72 @@ public class ActivityService {
         
         return activityRepository.save(activity);
     }
+
+    public java.util.Map<String, Long> getCategoryDistributionByUserId(Long userId) {
+        java.util.List<Object[]> results = activityRepository.countActivitiesByCategory(userId);
+        java.util.Map<String, Long> distribution = new java.util.HashMap<>();
+        for (Object[] result : results) {
+            distribution.put(result[0].toString(), (Long) result[1]);
+        }
+        return distribution;
+    }
+
+    public java.util.Map<String, Long> getDailyDistributionByUserId(Long userId) {
+        java.util.List<Object[]> results = activityRepository.countActivitiesByDay(userId);
+        java.util.Map<String, Long> distribution = new java.util.LinkedHashMap<>();
+        int count = 0;
+        for (Object[] result : results) {
+            if (count >= 7) break;
+            distribution.put(result[0].toString(), (Long) result[1]);
+            count++;
+        }
+        return distribution;
+    }
+
+    public java.util.Map<String, Object> getUserActivitySummary(Long userId) {
+        java.util.Map<String, Object> summary = new java.util.HashMap<>();
+        summary.put("totalActivities", activityRepository.countByUserId(userId));
+        summary.put("categoryDistribution", getCategoryDistributionByUserId(userId));
+        summary.put("dailyDistribution", getDailyDistributionByUserId(userId));
+        return summary;
+    }
+
+    public java.util.Map<String, Long> getGlobalCategoryDistribution() {
+        java.util.List<Object[]> results = activityRepository.countGlobalActivitiesByCategory();
+        java.util.Map<String, Long> distribution = new java.util.HashMap<>();
+        for (Object[] result : results) {
+            distribution.put(result[0].toString(), (Long) result[1]);
+        }
+        return distribution;
+    }
+
+    public java.util.Map<String, Object> getCommunityStats() {
+        java.util.Map<String, Object> stats = new java.util.HashMap<>();
+        stats.put("totalGlobalActivities", activityRepository.countTotalActivities());
+        stats.put("globalCategoryDistribution", getGlobalCategoryDistribution());
+        return stats;
+    }
+    public java.util.List<java.util.Map<String, Object>> getLeaderboard() {
+        org.springframework.data.domain.Pageable topTen = org.springframework.data.domain.PageRequest.of(0, 10);
+        java.util.List<Object[]> results = activityRepository.getLeaderboardData(topTen);
+        
+        java.util.List<java.util.Map<String, Object>> leaderboard = new java.util.ArrayList<>();
+        for (Object[] result : results) {
+            java.util.Map<String, Object> entry = new java.util.HashMap<>();
+            long count = (Long) result[1];
+            entry.put("username", result[0].toString());
+            entry.put("activityCount", count);
+            entry.put("level", calculateLevel(count));
+            leaderboard.add(entry);
+        }
+        return leaderboard;
+    }
+
+    private int calculateLevel(long activityCount) {
+        if (activityCount < 5) return 1;
+        if (activityCount < 20) return 2;
+        if (activityCount < 50) return 3;
+        if (activityCount < 100) return 4;
+        return 5;
+    }
 }

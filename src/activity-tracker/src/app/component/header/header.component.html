@@ -15,6 +15,14 @@
                 </li>
                 
                 <!-- Show these when logged in -->
+                <li class="nav-item" *ngIf="isLoggedIn() && streak > 0">
+                    <span class="nav-link text-danger fw-bold px-2 py-2" title="Current Streak">
+                        <i class="bi bi-fire"></i> {{ streak }}
+                    </span>
+                </li>
+                <li class="nav-item" *ngIf="isLoggedIn()">
+                    <a class="nav-link text-readable-secondary fw-bold px-3 py-2 rounded-pill hover-effect" routerLink="/dashboard" routerLinkActive="text-white">Dashboard</a>
+                </li>
                 <li class="nav-item" *ngIf="isLoggedIn()">
                     <button class="btn btn-link text-readable-secondary fw-bold px-3 py-2 text-decoration-none rounded-pill hover-effect" (click)="logout()">Logout</button>
                 </li>

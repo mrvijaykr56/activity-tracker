@@ -106,6 +106,10 @@
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
                 <h2 class="mb-0">Your Activities</h2>
                 <div class="d-flex align-items-center gap-3">
+                    <button class="glass-btn btn-sm py-2 px-3 d-flex align-items-center gap-2" (click)="exportToCsv()" title="Export to CSV">
+                        <i class="bi bi-download"></i>
+                        <span class="d-none d-sm-inline">Export</span>
+                    </button>
                     <div class="search-container">
                         <i class="bi bi-search"></i>
                         <input type="text" class="glass-input" [(ngModel)]="searchText" (ngModelChange)="onSearch()" placeholder="Search activities..." aria-label="Search activities">
@@ -209,68 +213,143 @@
 
     <!-- Guest Landing Section -->
     <ng-template #guestLanding>
-        <!-- ... existing guest landing ... -->
-        <div class="row g-5 align-items-center animate-fade-in" style="animation-delay: 0.1s">
-            <div class="col-lg-7">
+        <!-- Hero Section -->
+        <div class="row g-5 align-items-center animate-fade-in mb-5">
+            <div class="col-lg-6">
                 <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center"
                     style="background: rgba(255,255,255,0.04)">
-                    <h2 class="mb-4 fw-bold gradient-text">
-                        Elevate Your Daily Routine
-                    </h2>
+                    <div class="badge bg-primary bg-opacity-25 text-primary px-3 py-2 mb-4 align-self-start">
+                        #1 Personal Productivity Tool
+                    </div>
+                    <h1 class="display-4 mb-4 fw-bold gradient-text">
+                        Master Your Day, <br>Track Your Success.
+                    </h1>
                     <p class="fs-5 text-readable-secondary mb-5">
-                        Join a community of achievers using our premium activity tracker to visualize progress, build
-                        lasting habits, and reclaim their time.
+                        Join {{ communityStats?.totalGlobalActivities || 'thousands' }} achievers using ActivityTracker to visualize progress, build
+                        lasting habits, and reclaim their time with AI-driven insights.
                     </p>
                     <div class="d-flex flex-wrap gap-4">
-                        <button class="glass-btn px-5 py-3 fs-5" routerLink="/register">Get Started Free</button>
+                        <button class="glass-btn px-5 py-3 fs-5" routerLink="/register">Start Tracking Free</button>
                         <button class="btn btn-outline-light rounded-pill px-5 py-3 fs-5 hover-effect"
-                            routerLink="/login" style="border-color: var(--glass-border)">Login Now</button>
+                            routerLink="/login" style="border-color: var(--glass-border)">Sign In</button>
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
-                <div class="row g-4">
-                    <div class="col-12">
-                        <div class="glass-card p-4 hover-effect">
-                            <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4"
-                                    style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
-                                    <i class="bi bi-shield-check fs-2"></i>
-                                </div>
-                                <div>
-                                    <h3 class="h4 mb-1 text-high-contrast">Secure & Private</h3>
-                                    <p class="small text-readable-secondary mb-0">Enterprise-grade encryption for your personal data.
-                                    </p>
-                                </div>
+            <div class="col-lg-6">
+                <!-- Live Community Stats -->
+                <div class="glass-card p-4 mb-4 animate-fade-in" style="animation-delay: 0.2s">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h4 class="mb-0">Live Global Pulse</h4>
+                        <span class="badge bg-success bg-opacity-10 text-success">Live Updates</span>
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <div class="p-3 rounded-4 bg-white bg-opacity-05">
+                                <div class="small text-muted mb-1">Total Activities</div>
+                                <div class="h3 mb-0">{{ communityStats?.totalGlobalActivities || '2,400+' }}</div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="p-3 rounded-4 bg-white bg-opacity-05">
+                                <div class="small text-muted mb-1">Global Categories</div>
+                                <div class="h3 mb-0">{{ (communityStats?.globalCategoryDistribution | keyvalue)?.length || '5' }}</div>
                             </div>
                         </div>
                     </div>
-                    <div class="col-12">
-                        <div class="glass-card p-4 hover-effect">
-                            <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4"
-                                    style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf;">
-                                    <i class="bi bi-lightning-charge fs-2"></i>
-                                </div>
-                                <div>
-                                    <h3 class="h4 mb-1 text-high-contrast">Insightful Analytics</h3>
-                                    <p class="small text-readable-secondary mb-0">Real-time visualization of your productivity peaks.
-                                    </p>
+                </div>
+
+                <!-- Leaderboard Preview -->
+                <div class="glass-card p-4 animate-fade-in" style="animation-delay: 0.3s">
+                    <h4 class="mb-3">Community Leaders</h4>
+                    <div class="d-flex flex-column gap-2">
+                        <div *ngFor="let entry of leaderboard | slice:0:3; let i = index" class="d-flex justify-content-between align-items-center p-2 rounded-3 bg-white bg-opacity-05">
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="badge" [class.bg-warning]="i === 0" [class.bg-secondary]="i === 1" [class.bg-bronze]="i === 2">#{{ i + 1 }}</span>
+                                <span class="fw-bold">{{ entry.username }}</span>
+                            </div>
+                            <div class="small text-info">Lvl {{ entry.level }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feature Showcase Section -->
+        <div class="row g-5 mb-5 mt-5">
+            <div class="col-12 text-center mb-4">
+                <h2 class="display-6 fw-bold">Experience the Power of Tracking</h2>
+                <p class="text-readable-secondary">Everything you need to optimize your daily workflow.</p>
+            </div>
+
+            <!-- Dashboard Preview -->
+            <div class="col-md-7">
+                <div class="glass-card p-0 overflow-hidden shadow-lg border-primary border-opacity-25" style="transform: perspective(1000px) rotateY(-5deg);">
+                    <div class="p-3 bg-white bg-opacity-05 border-bottom border-white border-opacity-10 d-flex justify-content-between align-items-center">
+                        <div class="d-flex gap-2">
+                            <div class="rounded-circle bg-danger" style="width:12px; height:12px; opacity:0.5;"></div>
+                            <div class="rounded-circle bg-warning" style="width:12px; height:12px; opacity:0.5;"></div>
+                            <div class="rounded-circle bg-success" style="width:12px; height:12px; opacity:0.5;"></div>
+                        </div>
+                        <span class="small text-muted">Preview: Personal Dashboard</span>
+                        <div></div>
+                    </div>
+                    <div class="p-4">
+                        <div class="row g-3 mb-4">
+                            <div class="col-4" *ngFor="let i of [1,2,3]">
+                                <div class="p-3 rounded-4 bg-white bg-opacity-05 text-center">
+                                    <div class="skeleton-box mb-2" style="width: 40px; height: 10px;"></div>
+                                    <div class="skeleton-box" style="width: 60px; height: 20px;"></div>
                                 </div>
                             </div>
                         </div>
+                        <div class="table-responsive">
+                            <table class="table table-borderless text-white mb-0 small">
+                                <tbody>
+                                    <tr *ngFor="let act of mockActivities" class="border-bottom border-white border-opacity-05">
+                                        <td class="py-3">{{ act.activityName }}</td>
+                                        <td><span class="badge bg-primary bg-opacity-10 text-primary">{{ act.category }}</span></td>
+                                        <td class="text-end">{{ act.timeDuration }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-                    <div class="col-12">
-                        <div class="glass-card p-4 hover-effect">
-                            <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4"
-                                    style="background: rgba(251, 113, 133, 0.15); color: #fb7185;">
-                                    <i class="bi bi-bar-chart fs-2"></i>
-                                </div>
-                                <div>
-                                    <h3 class="h4 mb-1 text-high-contrast">Smart Analytics</h3>
-                                    <p class="small text-readable-secondary mb-0">Automated habit detection and goal setting.</p>
-                                </div>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="col-md-5">
+                <div class="d-flex flex-column gap-4">
+                    <div class="glass-card p-4 hover-effect">
+                        <div class="d-flex gap-4">
+                            <div class="p-3 rounded-4 bg-primary bg-opacity-15 text-primary">
+                                <i class="bi bi-robot fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">AI-Driven Insights</h4>
+                                <p class="small text-readable-secondary mb-0">Get personalized wellness and productivity tips based on your actual data trends.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-4 hover-effect">
+                        <div class="d-flex gap-4">
+                            <div class="p-3 rounded-4 bg-info bg-opacity-15 text-info">
+                                <i class="bi bi-smartwatch fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">Wearable Syncing</h4>
+                                <p class="small text-readable-secondary mb-0">Seamlessly import activities from Apple Health, Fitbit, and more.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="glass-card p-4 hover-effect">
+                        <div class="d-flex gap-4">
+                            <div class="p-3 rounded-4 bg-warning bg-opacity-15 text-warning">
+                                <i class="bi bi-fire fs-3"></i>
+                            </div>
+                            <div>
+                                <h4 class="mb-1">Gamified Progress</h4>
+                                <p class="small text-readable-secondary mb-0">Earn badges, maintain streaks, and level up as you stay consistent.</p>
                             </div>
                         </div>
                     </div>
@@ -278,10 +357,15 @@
             </div>
         </div>
 
-        <div class="mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.3s">
-            <h2 class="display-6 mb-4 fw-bold">Master Your Workflow</h2>
-            <p class="text-readable-secondary mb-5 mx-auto" style="max-width: 600px;">Take control of your schedule today and
-                start your journey towards peak performance with ActivityTracker.</p>
+        <!-- Social Proof / Footer Promo -->
+        <div class="mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.5s">
+            <h2 class="display-6 mb-4 fw-bold">Ready to take control?</h2>
+            <p class="text-readable-secondary mb-5 mx-auto" style="max-width: 600px;">
+                Start your journey towards peak performance with ActivityTracker. 
+                Free for personal use, forever.
+            </p>
+            <button class="glass-btn px-5 py-3 fs-5 mb-5" routerLink="/register">Create Your Account</button>
+            
             <div class="d-flex justify-content-center align-items-center gap-5 opacity-25">
                 <i class="bi bi-apple fs-1"></i>
                 <i class="bi bi-google fs-1"></i>

@@ -10,6 +10,7 @@ import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { HeaderComponent } from './component/header/header.component';
 import { FooterComponent } from './component/footer/footer.component';
 import { RegisterComponent } from './component/register/register.component';
+import { DashboardComponent } from './component/dashboard/dashboard.component';
 import { LoadingComponent } from './shared/loading.component';
 import { NotificationComponent } from './shared/notification.component';
 import { ConfirmComponent } from './shared/confirm.component';
@@ -25,6 +26,7 @@ import { AuthInterceptor } from './interceptor/auth.interceptor';
     HeaderComponent,
     FooterComponent,
     RegisterComponent,
+    DashboardComponent,
     LoadingComponent,
     NotificationComponent,
     ConfirmComponent
