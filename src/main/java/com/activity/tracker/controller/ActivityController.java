@@ -5,6 +5,10 @@ import com.activity.tracker.entities.Activity;
 import com.activity.tracker.service.ActivityService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,8 +17,12 @@ import java.util.List;
 @RestController
 @RequestMapping("/tracker/users/activity")
 public class ActivityController {
-    @Autowired
-    private ActivityService activityService;
+    
+    private final ActivityService activityService;
+
+    public ActivityController(ActivityService activityService) {
+        this.activityService = activityService;
+    }
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse<Activity>> addActivity(@Valid @RequestBody Activity activity) {
@@ -32,8 +40,16 @@ public class ActivityController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<ApiResponse<List<Activity>>> getActivitiesByUserId(@PathVariable Long userId) {
-        List<Activity> activities = activityService.getActivitiesByUserId(userId);
+    public ResponseEntity<ApiResponse<Page<Activity>>> getActivitiesByUserId(
+            @PathVariable Long userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size,
+            @RequestParam(defaultValue = "id,desc") String[] sort) {
+        
+        Sort.Direction direction = sort[1].equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sort[0]));
+        
+        Page<Activity> activities = activityService.getActivitiesByUserId(userId, pageable);
         return ResponseEntity.ok(ApiResponse.success(activities, "Activities retrieved successfully"));
     }
 

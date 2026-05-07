@@ -11,7 +11,7 @@
             <div class="glass-card p-4 d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-uppercase small letter-spacing-1 text-readable-secondary mb-1">Overview</div>
-                    <div class="h3 mb-0 text-high-contrast">{{ savedActivityListData.length }} <span
+                    <div class="h3 mb-0 text-high-contrast">{{ totalElements }} <span
                             class="fs-6 fw-semibold text-readable-secondary">Activities</span></div>
                 </div>
                 <div class="p-3 rounded-circle"
@@ -38,51 +38,51 @@
                     <i class="bi bi-x-lg me-1"></i> Cancel Edit
                 </button>
             </div>
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6">
-                    <label for="activityName" class="form-label">Activity Name</label>
-                    <input type="text" id="activityName" class="glass-input" [(ngModel)]="newActivity.activityName"
-                        placeholder="e.g. Morning Run">
+            <form [formGroup]="activityForm" (ngSubmit)="onSubmit()">
+                <div class="row g-4">
+                    <div class="col-lg-3 col-md-6">
+                        <label for="activityName" class="form-label">Activity Name</label>
+                        <input type="text" id="activityName" class="glass-input" formControlName="activityName"
+                            placeholder="e.g. Morning Run">
+                        <div *ngIf="activityForm.get('activityName')?.touched && activityForm.get('activityName')?.invalid" class="mt-2 small text-danger">
+                            Name is required (min 3 chars).
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-6">
+                        <label for="category" class="form-label">Category</label>
+                        <select id="category" class="glass-input" formControlName="category">
+                            <option value="">Select Category</option>
+                            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="duration" class="form-label">Duration</label>
+                        <input type="time" id="duration" class="glass-input" formControlName="timeDuration">
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="date" class="form-label">Date</label>
+                        <input type="text" id="date" class="glass-input" formControlName="date"
+                            placeholder="DD-MM-YYYY">
+                        <div *ngIf="activityForm.get('date')?.touched && activityForm.get('date')?.invalid" class="mt-2 small text-danger">
+                            Format: DD-MM-YYYY
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4">
+                        <label for="days" class="form-label">Day</label>
+                        <select id="days" class="glass-input" formControlName="days">
+                            <option value="">Select Day</option>
+                            <option *ngFor="let day of daysList" [value]="day">{{ day }}</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-1 col-md-12 d-flex align-items-end">
+                        <button type="submit" class="glass-btn w-100"
+                            [disabled]="activityForm.invalid || isSaving || isUpdating"
+                            [class.btn-loading]="isSaving || isUpdating">
+                            {{ editingActivityId ? 'Save' : 'Add' }}
+                        </button>
+                    </div>
                 </div>
-                <div class="col-lg-2 col-md-6">
-                    <label for="category" class="form-label">Category</label>
-                    <select id="category" class="glass-input" [(ngModel)]="newActivity.category" #category="ngModel"
-                        required>
-                        <option value="">Select Category</option>
-                        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
-                    </select>
-                </div>
-                <div class="col-lg-2 col-md-4">
-                    <label for="duration" class="form-label">Duration</label>
-                    <input type="time" id="duration" class="glass-input" [(ngModel)]="newActivity.timeDuration"
-                        #duration="ngModel" required>
-                </div>
-                <div class="col-lg-2 col-md-4">
-                    <label for="date" class="form-label">Date</label>
-                    <input type="text" id="date" class="glass-input" [(ngModel)]="newActivity.date" #date="ngModel"
-                        placeholder="DD-MM-YYYY" required>
-                </div>
-                <div class="col-lg-2 col-md-4">
-                    <label for="days" class="form-label">Day</label>
-                    <select id="days" class="glass-input" [(ngModel)]="newActivity.days" #days="ngModel" required>
-                        <option value="">Select Day</option>
-                        <option *ngFor="let day of daysList" [value]="day">{{ day }}</option>
-                    </select>
-                </div>
-                <div class="col-lg-1 col-md-12 d-flex align-items-end">
-                    <button *ngIf="!editingActivityId" type="button" class="glass-btn w-100"
-                        [disabled]="!newActivity.activityName || category.invalid || duration.invalid || date.invalid || days.invalid || isSaving"
-                        [class.btn-loading]="isSaving" (click)="addActivity()">
-                        Add
-                    </button>
-                    <button *ngIf="editingActivityId" type="button" class="glass-btn w-100"
-                        style="background: var(--secondary-gradient)"
-                        [disabled]="!newActivity.activityName || category.invalid || duration.invalid || date.invalid || days.invalid || isUpdating"
-                        [class.btn-loading]="isUpdating" (click)="updateActivity()">
-                        Save
-                    </button>
-                </div>
-            </div>
+            </form>
         </div>
 
         <!-- Saved Activities Section -->
@@ -96,12 +96,12 @@
                     </div>
                     <span class="badge rounded-pill px-4 py-2"
                         style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);">
-                        {{ filteredActivities.length }} <span class="fw-semibold">Found</span>
+                        {{ totalElements }} <span class="fw-semibold">Total</span>
                     </span>
                 </div>
             </div>
 
-            <div class="glass-card shadow-lg">
+            <div class="glass-card shadow-lg mb-4">
                 <div class="table-responsive">
                     <table class="table table-hover mb-0"
                         style="--bs-table-bg: transparent; --bs-table-border-color: var(--glass-border); border-collapse: separate; border-spacing: 0;">
@@ -163,11 +163,34 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Pagination Controls -->
+            <div class="d-flex justify-content-between align-items-center pb-5" *ngIf="totalPages > 1">
+                <div class="text-readable-secondary small">
+                    Showing Page {{ currentPage + 1 }} of {{ totalPages }}
+                </div>
+                <div class="d-flex gap-2">
+                    <button class="action-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">
+                        <i class="bi bi-chevron-left"></i>
+                    </button>
+                    <button *ngFor="let p of [].constructor(totalPages); let i = index" 
+                        class="action-btn" 
+                        [class.bg-primary]="i === currentPage"
+                        [class.text-white]="i === currentPage"
+                        (click)="onPageChange(i)">
+                        {{ i + 1 }}
+                    </button>
+                    <button class="action-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">
+                        <i class="bi bi-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
     <!-- Guest Landing Section -->
     <ng-template #guestLanding>
+        <!-- ... existing guest landing ... -->
         <div class="row g-5 align-items-center animate-fade-in" style="animation-delay: 0.1s">
             <div class="col-lg-7">
                 <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center"

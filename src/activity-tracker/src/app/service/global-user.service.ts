@@ -5,12 +5,21 @@ import { Injectable } from '@angular/core';
 })
 export class GlobalUserService {
   private readonly USER_KEY = 'tracker_user';
+  private readonly TOKEN_KEY = 'tracker_token';
   private user = this.loadUser();
 
   // Method to set user data
-  setUser(userData: Partial<any>): void {
-    this.user = { ...this.user, ...userData }; // Update user data
+  setUser(userData: any): void {
+    this.user = userData;
     localStorage.setItem(this.USER_KEY, JSON.stringify(this.user));
+  }
+
+  setToken(token: string): void {
+    localStorage.setItem(this.TOKEN_KEY, token);
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem(this.TOKEN_KEY);
   }
 
   // Method to get user data
@@ -19,7 +28,7 @@ export class GlobalUserService {
   }
 
   isLoggedIn(): boolean {
-    return !!(this.user && this.user.id !== null && this.user.id !== undefined && this.user.id !== '');
+    return !!this.getToken() && !!(this.user && this.user.id);
   }
 
   private loadUser(): any {
@@ -36,14 +45,8 @@ export class GlobalUserService {
 
   // Method to clear user data (e.g., on logout)
   clearUser(): void {
-    this.user = {
-      id: '',
-      age: '',
-      firstname: '',
-      lastname: '',
-      username: '',
-      password: '',
-    };
+    this.user = null;
     localStorage.removeItem(this.USER_KEY);
+    localStorage.removeItem(this.TOKEN_KEY);
   }
 }

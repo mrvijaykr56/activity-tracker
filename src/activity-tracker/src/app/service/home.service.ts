@@ -12,8 +12,8 @@ export class HomeService {
 
   constructor(private http: HttpClient) { }
 
-  getAllActivity(userId: number): Observable<ApiResponse<Activity[]>> {
-    return this.http.get<ApiResponse<Activity[]>>(`${this.url}/user/${userId}`);
+  getAllActivity(userId: number, page: number = 0, size: number = 5): Observable<ApiResponse<any>> {
+    return this.http.get<ApiResponse<any>>(`${this.url}/user/${userId}?page=${page}&size=${size}`);
   }
 
   saveActivity(data: any): Observable<ApiResponse<Activity>> {

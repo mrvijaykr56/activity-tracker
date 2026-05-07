@@ -1,5 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Subject, takeUntil, finalize } from 'rxjs';
 import { Category } from 'src/app/models/category.enum';
 import { Day } from 'src/app/models/day.enum';
@@ -14,21 +15,22 @@ import { NotificationService } from 'src/app/service/notification.service';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {
-  user: { id: string, age: string; firstname: string; lastname: string; username: string; password: string } | null = null;
-  images: string[] = [
-    'assets/images/2.png',
-    'assets/images/3.png',
-    'assets/images/4.png'
-  ];
-  currentImageIndex: number = 0;
+  user: any = null;
   private unsubscribeAll: Subject<void> = new Subject<void>();
 
-  // Expose Enums to template
+  // Reactive Form
+  activityForm: FormGroup;
+
+  // Enums
   categories = Object.values(Category);
   daysList = Object.values(Day);
 
-  // Data
+  // Pagination Data
   savedActivityListData: Array<any> = [];
+  currentPage: number = 0;
+  pageSize: number = 5;
+  totalElements: number = 0;
+  totalPages: number = 0;
   searchText: string = '';
 
   // State
@@ -37,15 +39,8 @@ export class HomeComponent implements OnInit, OnDestroy {
   editingActivityId: number | null = null;
   deletingActivityId: number | null = null;
 
-  newActivity = {
-    activityName: '',
-    category: '',
-    timeDuration: '',
-    date: '',
-    days: ''
-  };
-
   constructor(
+    private fb: FormBuilder,
     private homeService: HomeService, 
     private globalUserService: GlobalUserService,
     private router: Router,
@@ -53,6 +48,13 @@ export class HomeComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService
   ) {
     this.user = this.globalUserService.getUser();
+    this.activityForm = this.fb.group({
+      activityName: ['', [Validators.required, Validators.minLength(3)]],
+      category: ['', Validators.required],
+      timeDuration: ['', Validators.required],
+      date: ['', [Validators.required, Validators.pattern(/^\d{2}-\d{2}-\d{4}$/)]],
+      days: ['', Validators.required]
+    });
   }
 
   ngOnInit(): void {
@@ -74,57 +76,79 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  fetchSavedActivityList(): void {
+  fetchSavedActivityList(page: number = this.currentPage): void {
     const userId = this.user?.id ? Number(this.user.id) : null;
-    if (!userId) {
-      this.notificationService.error('User ID is invalid.');
-      return;
-    }
+    if (!userId) return;
 
+    this.currentPage = page;
     this.loadingService.show();
-    this.homeService.getAllActivity(userId).pipe(
+    this.homeService.getAllActivity(userId, this.currentPage, this.pageSize).pipe(
       takeUntil(this.unsubscribeAll),
       finalize(() => this.loadingService.hide())
     ).subscribe({
       next: (response) => {
-        this.savedActivityListData = response.data;
+        const pageData = response.data;
+        this.savedActivityListData = pageData.content;
+        this.totalElements = pageData.totalElements;
+        this.totalPages = pageData.totalPages;
       },
       error: () => {}
     });
   }
 
-  addActivity() {
-    if (this.newActivity.activityName && this.newActivity.category && this.newActivity.timeDuration && this.newActivity.date && this.newActivity.days) {
-      const activityToSave = {
-        ...this.newActivity,
-        user: { id: this.user?.id }
-      };
-
-      this.isSaving = true;
-      this.loadingService.show();
-      this.homeService.saveActivity(activityToSave).pipe(
-        takeUntil(this.unsubscribeAll),
-        finalize(() => {
-          this.loadingService.hide();
-          this.isSaving = false;
-        })
-      ).subscribe({
-        next: (response) => {
-          this.notificationService.success(response.message || "Activity saved successfully");
-          this.fetchSavedActivityList();
-          this.resetNewActivity();
-        },
-        error: () => {}
-      });
-    } else {
-      this.notificationService.warning('Please fill in all fields!');
+  onPageChange(page: number): void {
+    if (page >= 0 && page < this.totalPages) {
+      this.fetchSavedActivityList(page);
     }
+  }
+
+  onSubmit() {
+    if (this.activityForm.invalid) {
+      this.activityForm.markAllAsTouched();
+      this.notificationService.warning('Please fill in all fields correctly!');
+      return;
+    }
+
+    if (this.editingActivityId) {
+      this.updateActivity();
+    } else {
+      this.addActivity();
+    }
+  }
+
+  addActivity() {
+    const activityToSave = {
+      ...this.activityForm.value,
+      user: { id: this.user?.id }
+    };
+
+    this.isSaving = true;
+    this.loadingService.show();
+    this.homeService.saveActivity(activityToSave).pipe(
+      takeUntil(this.unsubscribeAll),
+      finalize(() => {
+        this.loadingService.hide();
+        this.isSaving = false;
+      })
+    ).subscribe({
+      next: (response) => {
+        this.notificationService.success(response.message || "Activity saved successfully");
+        this.fetchSavedActivityList(0); // Reset to first page
+        this.activityForm.reset({ category: '', days: '' });
+      },
+      error: () => {}
+    });
   }
 
   editActivity(activity: any) {
     this.editingActivityId = activity.id;
-    this.newActivity = { ...activity };
-    // Scroll to form or highlight
+    this.activityForm.patchValue({
+      activityName: activity.activityName,
+      category: activity.category,
+      timeDuration: activity.timeDuration,
+      date: activity.date,
+      days: activity.days
+    });
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -133,7 +157,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.isUpdating = true;
     this.loadingService.show();
-    this.homeService.updateActivity(this.editingActivityId, this.newActivity).pipe(
+    this.homeService.updateActivity(this.editingActivityId, this.activityForm.value).pipe(
       takeUntil(this.unsubscribeAll),
       finalize(() => {
         this.loadingService.hide();
@@ -151,10 +175,12 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   cancelEdit() {
     this.editingActivityId = null;
-    this.resetNewActivity();
+    this.activityForm.reset({ category: '', days: '' });
   }
 
   deleteActivity(id: number) {
+    if (!confirm('Are you sure you want to delete this activity?')) return;
+
     this.deletingActivityId = id;
     this.homeService.deleteActivity(id).pipe(
       takeUntil(this.unsubscribeAll),
@@ -162,20 +188,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     ).subscribe({
       next: (response) => {
         this.notificationService.success(response.message || "Activity deleted successfully");
-        this.fetchSavedActivityList();
+        // If current page becomes empty and it's not the first page, go back
+        if (this.savedActivityListData.length === 1 && this.currentPage > 0) {
+          this.fetchSavedActivityList(this.currentPage - 1);
+        } else {
+          this.fetchSavedActivityList();
+        }
       },
       error: () => {}
     });
-  }
-
-  resetNewActivity() {
-    this.newActivity = {
-      activityName: '',
-      category: '',
-      timeDuration: '',
-      date: '',
-      days: ''
-    };
   }
 
   ngOnDestroy(): void {

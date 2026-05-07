@@ -2,8 +2,10 @@ package com.activity.tracker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
 @SpringBootApplication
+@EnableJpaAuditing
 //@EnableJpaRepositories(basePackages = "com.activity.tracker.repo;")
 public class DailyActivityTrackerApplication {
 

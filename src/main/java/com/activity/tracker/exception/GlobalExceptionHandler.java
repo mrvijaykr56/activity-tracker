@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -59,6 +60,21 @@ public class GlobalExceptionHandler {
                 errors
         );
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<Object>> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+        String message = "Database constraint violation";
+        if (ex.getMessage() != null && ex.getMessage().contains("Duplicate entry")) {
+            message = "Username or data already exists. Please use a different value.";
+        }
+        
+        ApiResponse<Object> response = ApiResponse.error(
+                HttpStatus.CONFLICT.value(),
+                message,
+                ex.getMostSpecificCause().getMessage()
+        );
+        return new ResponseEntity<>(response, HttpStatus.CONFLICT);
     }
 }
 

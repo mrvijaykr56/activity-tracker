@@ -1,6 +1,7 @@
 package com.activity.tracker.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.activity.tracker.entities.Activity;
@@ -10,8 +11,12 @@ import java.util.List;
 
 @Service
 public class ActivityService {
-    @Autowired
-    private ActivityRepository activityRepository;
+    
+    private final ActivityRepository activityRepository;
+
+    public ActivityService(ActivityRepository activityRepository) {
+        this.activityRepository = activityRepository;
+    }
 
     // Save a single activity
     public Activity saveActivity(Activity activity) {
@@ -28,9 +33,9 @@ public class ActivityService {
         return activityRepository.findAll();
     }
     
-    // Retrieve all activities by passing user id
-    public List<Activity> getActivitiesByUserId(Long userId) {
-        return activityRepository.findByUserId(userId);
+    // Retrieve all activities by passing user id with pagination
+    public Page<Activity> getActivitiesByUserId(Long userId, Pageable pageable) {
+        return activityRepository.findByUserId(userId, pageable);
     }
 
     // Delete an activity

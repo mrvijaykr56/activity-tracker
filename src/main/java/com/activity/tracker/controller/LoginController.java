@@ -1,5 +1,6 @@
 package com.activity.tracker.controller;
 
+import com.activity.tracker.config.JwtUtils;
 import com.activity.tracker.dto.ApiResponse;
 import com.activity.tracker.dto.LoginRequest;
 import com.activity.tracker.entities.User;
@@ -18,8 +19,13 @@ import java.util.Map;
 @RequestMapping("/tracker/users")
 public class LoginController {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final JwtUtils jwtUtils;
+
+    public LoginController(UserService userService, JwtUtils jwtUtils) {
+        this.userService = userService;
+        this.jwtUtils = jwtUtils;
+    }
 
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<Map<String, Object>>> login(@Valid @RequestBody LoginRequest loginRequest) {
@@ -27,8 +33,11 @@ public class LoginController {
         
         if (isAuthenticated) {
             User authenticatedUser = userService.getUserByUsername(loginRequest.getUsername());
+            String jwt = jwtUtils.generateToken(authenticatedUser.getUsername());
+            
             Map<String, Object> data = new HashMap<>();
             data.put("user", authenticatedUser);
+            data.put("token", jwt);
             return ResponseEntity.ok(ApiResponse.success(data, "Login Successful"));
         } else {
             throw new IllegalArgumentException("Invalid credentials");

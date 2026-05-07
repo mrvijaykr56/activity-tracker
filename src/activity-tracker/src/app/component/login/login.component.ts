@@ -42,6 +42,7 @@ export class LoginComponent implements OnDestroy {
       next: (response: any) => {
         if (response.status === 200 || response.message === 'Login Successful') {
           this.globalUserService.setUser(response.data.user);
+          this.globalUserService.setToken(response.data.token);
           this.notificationService.success(response.message);
           this.router.navigate(['/home']);
         } else {

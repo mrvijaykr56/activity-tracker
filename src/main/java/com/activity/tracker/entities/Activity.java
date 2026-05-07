@@ -2,19 +2,21 @@ package com.activity.tracker.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import java.time.LocalDateTime;
 
 @Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@EntityListeners(AuditingEntityListener.class)
 public class Activity {
 
     @Id
@@ -43,60 +45,10 @@ public class Activity {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    // Getters and setters
-    public Long getId() {
-        return id;
-    }
+    @CreatedDate
+    @Column(updatable = false)
+    private LocalDateTime createdAt;
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getActivityName() {
-        return activityName;
-    }
-
-    public void setActivityName(String activityName) {
-        this.activityName = activityName;
-    }
-
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public String getTimeDuration() {
-        return timeDuration;
-    }
-
-    public void setTimeDuration(String timeDuration) {
-        this.timeDuration = timeDuration;
-    }
-
-    public String getDate() {
-        return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
-    }
-
-    public Day getDays() {
-        return days;
-    }
-
-    public void setDays(Day days) {
-        this.days = days;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
+    @LastModifiedDate
+    private LocalDateTime updatedAt;
 }
