@@ -42,7 +42,7 @@
                     <div class="col-md-4" *ngFor="let tip of wellnessTips">
                         <div class="p-3 rounded-4 h-100" [style.background]="'rgba(255,255,255,0.03)'">
                             <i class="bi bi-lightbulb text-warning me-2" aria-hidden="true"></i>
-                            <span class="small">{{ tip }}</span>
+                            <span class="fw-medium text-readable-secondary">{{ tip }}</span>
                         </div>
                     </div>
                 </div>
@@ -55,22 +55,22 @@
         <div class="col-md-4">
             <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
                 <i class="bi bi-fire mb-3 fs-1 text-danger" aria-hidden="true"></i>
-                <h3 class="mb-1">{{ gamificationData?.streak || 0 }} Days</h3>
-                <p class="text-muted mb-0">Current Streak</p>
+                <h3 class="mb-1 text-high-contrast">{{ gamificationData?.streak || 0 }} Days</h3>
+                <p class="text-readable-secondary mb-0 fw-medium">Current Streak</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
                 <i class="bi bi-activity mb-3 fs-1 text-primary" aria-hidden="true"></i>
-                <h3 class="mb-1">{{ summaryData.totalActivities }}</h3>
-                <p class="text-muted mb-0">Total Activities</p>
+                <h3 class="mb-1 text-high-contrast">{{ summaryData.totalActivities }}</h3>
+                <p class="text-readable-secondary mb-0 fw-medium">Total Activities</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="glass-card p-4 h-100 text-center d-flex flex-column justify-content-center">
                 <i class="bi bi-trophy mb-3 fs-1 text-warning" aria-hidden="true"></i>
-                <h3 class="mb-1">{{ gamificationData?.badges?.length || 0 }}</h3>
-                <p class="text-muted mb-0">Earned Badges</p>
+                <h3 class="mb-1 text-high-contrast">{{ gamificationData?.badges?.length || 0 }}</h3>
+                <p class="text-readable-secondary mb-0 fw-medium">Earned Badges</p>
             </div>
         </div>
 
@@ -96,8 +96,8 @@
         <!-- Integration Row -->
         <div class="col-md-4">
             <div class="glass-card p-4 h-100">
-                <h3 class="mb-3">Wearable Sync</h3>
-                <p class="text-muted small mb-4">Connect your devices to automate your tracking.</p>
+                <h3 class="mb-3 text-high-contrast">Wearable Sync</h3>
+                <p class="text-readable-secondary small mb-4">Connect your devices to automate your tracking.</p>
                 
                 <div class="d-grid gap-2 mb-4">
                     <button class="glass-btn d-flex align-items-center justify-content-center gap-2" (click)="onSync('Apple Health')" [disabled]="isSyncing" aria-label="Sync Apple Health">
@@ -178,8 +178,8 @@
                     <div class="col-md-6" *ngFor="let goal of goals">
                         <div class="p-3 rounded-4" [style.background]="'rgba(255,255,255,0.03)'">
                             <div class="d-flex justify-content-between mb-2">
-                                <span class="fw-bold">{{ goal.category }}</span>
-                                <span class="text-muted">{{ goal.currentCount }} / {{ goal.targetCount }}</span>
+                                <span class="fw-bold text-high-contrast">{{ goal.category }}</span>
+                                <span class="text-readable-secondary fw-semibold">{{ goal.currentCount }} / {{ goal.targetCount }}</span>
                             </div>
                             <div class="progress" style="height: 10px; background: rgba(255,255,255,0.05); border-radius: 5px;">
                                 <div class="progress-bar progress-bar-animated" role="progressbar" 
@@ -208,8 +208,8 @@
                             <div class="badge-icon mb-2">
                                 <i class="bi {{ badge.icon }} fs-1 text-{{ badge.color }}" aria-hidden="true"></i>
                             </div>
-                            <h5 class="mb-1">{{ badge.name }}</h5>
-                            <p class="small text-muted mb-0">{{ badge.description }}</p>
+                            <h5 class="mb-1 text-high-contrast">{{ badge.name }}</h5>
+                            <p class="small text-readable-secondary mb-0">{{ badge.description }}</p>
                         </div>
                     </div>
                 </div>

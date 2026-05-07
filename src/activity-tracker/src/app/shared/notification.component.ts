@@ -90,6 +90,7 @@ import { Notification, NotificationService } from '../service/notification.servi
     .alert-warning::before { background: #f59e0b; }
 
     .alert-icon { font-size: 1.25rem; display: flex; align-items: center; }
+    .alert-message { font-weight: 500; font-size: 0.95rem; }
     .alert-success .alert-icon { color: var(--success); }
     .alert-error .alert-icon { color: var(--error); }
     .alert-info .alert-icon { color: var(--info); }
