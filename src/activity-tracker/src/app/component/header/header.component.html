@@ -1,0 +1,28 @@
+<nav class="navbar glass-card rounded-0 border-top-0 border-start-0 border-end-0 px-4 py-3 sticky-top" style="box-shadow: 0 4px 20px rgba(0,0,0,0.2);">
+    <div class="container-fluid">
+        <div class="logo fw-bold fs-3 cursor-pointer gradient-text" routerLink="/">
+            Activity<span style="color: var(--text-primary);">Tracker</span>
+        </div>
+        
+        <div class="d-flex align-items-center">
+            <ul class="nav mb-0 d-none d-md-flex align-items-center gap-2">
+                <!-- Show these when NOT logged in -->
+                <li class="nav-item" *ngIf="!isLoggedIn()">
+                    <a class="nav-link text-readable-secondary fw-semibold px-3 py-2 rounded-pill hover-effect" routerLink="/login" routerLinkActive="text-white">Login</a>
+                </li>
+                <li class="nav-item" *ngIf="!isLoggedIn()">
+                    <a class="glass-btn ms-2 px-4 py-2" routerLink="/register">Get Started</a>
+                </li>
+                
+                <!-- Show these when logged in -->
+                <li class="nav-item" *ngIf="isLoggedIn()">
+                    <button class="btn btn-link text-readable-secondary fw-semibold px-3 py-2 text-decoration-none rounded-pill hover-effect" (click)="logout()">Logout</button>
+                </li>
+            </ul>
+
+            <button class="btn btn-link text-white d-md-none p-0" type="button" aria-label="Toggle navigation" title="Menu">
+                <i class="bi bi-list fs-1"></i>
+            </button>
+        </div>
+    </div>
+</nav>

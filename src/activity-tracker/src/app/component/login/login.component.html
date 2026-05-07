@@ -1,0 +1,40 @@
+<div class="main-container d-flex justify-content-center align-items-center" style="min-height: 85vh;">
+    <div class="glass-card p-5 animate-fade-in shadow-lg" style="width: 100%; max-width: 480px; background: rgba(255,255,255,0.05)">
+        <div class="text-center mb-5">
+            <h2 class="fw-bold mb-2 text-high-contrast">Welcome Back</h2>
+            <p class="text-readable-secondary">Please enter your credentials to continue</p>
+        </div>
+        
+        <form #loginForm="ngForm" (submit)="loginForm.form.valid && login()">
+            <div class="mb-4">
+                <label for="user-id" class="form-label ms-1">Username</label>
+                <div class="position-relative">
+                    <input type="text" class="glass-input" id="user-id" [(ngModel)]="username" name="user-id" #userId="ngModel" placeholder="Enter your username" required>
+                </div>
+                <div *ngIf="userId.invalid && (userId.dirty || userId.touched)" class="mt-2 small text-danger ms-1 animate-fade-in">
+                    <i class="bi bi-exclamation-circle me-1"></i> Username is required.
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label for="user-password" class="form-label ms-1">Password</label>
+                <div class="position-relative">
+                    <input type="password" class="glass-input" id="user-password" [(ngModel)]="password" name="password" #userPwd="ngModel" placeholder="Enter your password" required>
+                </div>
+                <div *ngIf="userPwd.invalid && (userPwd.dirty || userPwd.touched)" class="mt-2 small text-danger ms-1 animate-fade-in">
+                    <i class="bi bi-exclamation-circle me-1"></i> Password is required.
+                </div>
+            </div>
+
+            <button type="submit" class="glass-btn w-100 py-3 fs-5" [disabled]="loginForm.form.invalid || isLoggingIn" [class.btn-loading]="isLoggingIn">
+                {{ isLoggingIn ? 'Authenticating...' : 'Sign In' }}
+            </button>
+        </form>
+
+        <div class="mt-5 pt-4 border-top border-secondary border-opacity-10 text-center">
+            <p class="text-readable-secondary mb-0">
+                Don't have an account? <a routerLink="/register" class="text-decoration-none fw-bold gradient-text">Create Account</a>
+            </p>
+        </div>
+    </div>
+</div>

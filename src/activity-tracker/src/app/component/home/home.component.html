@@ -1,0 +1,251 @@
+<div class="main-container">
+    <!-- Header Section -->
+    <div class="row align-items-center mb-5 animate-fade-in">
+        <div class="col-md-8">
+            <h1 class="mb-2 fw-bold">{{ isLoggedIn() ? 'Activity Dashboard' : 'Welcome to ActivityTracker' }}</h1>
+            <p class="lead text-readable-secondary">
+                {{ isLoggedIn() ? 'Track and manage your daily progress with precision.' : 'The simplest way to monitor your daily routines and achieve your goals.' }}
+            </p>
+        </div>
+        <div class="col-md-4 d-none d-md-block" *ngIf="isLoggedIn()">
+            <div class="glass-card p-4 d-flex align-items-center justify-content-between">
+                <div>
+                    <div class="fw-bold text-uppercase small letter-spacing-1 text-muted mb-1">Overview</div>
+                    <div class="h3 mb-0 text-high-contrast">{{ savedActivityListData.length }} <span
+                            class="fs-6 fw-normal text-readable-secondary">Activities</span></div>
+                </div>
+                <div class="p-3 rounded-circle shadow-lg"
+                    style="background: var(--primary-gradient); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                    <i class="bi bi-graph-up text-white fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div *ngIf="isLoggedIn(); else guestLanding">
+
+        <!-- Add/Edit Activity Section -->
+        <div class="glass-card p-5 mb-5 animate-fade-in" style="animation-delay: 0.1s"
+            [class.row-editing]="editingActivityId">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h3 class="mb-0 text-high-contrast">
+                    <i class="bi" [class.bi-plus-circle]="!editingActivityId"
+                        [class.bi-pencil-square]="editingActivityId"></i>
+                    {{ editingActivityId ? 'Edit Activity' : 'Add New Activity' }}
+                </h3>
+                <button *ngIf="editingActivityId"
+                    class="btn btn-link text-readable-secondary text-decoration-none small hover-effect" (click)="cancelEdit()">
+                    <i class="bi bi-x-lg me-1"></i> Cancel Edit
+                </button>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-3 col-md-6">
+                    <label for="activityName" class="form-label">Activity Name</label>
+                    <input type="text" id="activityName" class="glass-input" [(ngModel)]="newActivity.activityName"
+                        placeholder="e.g. Morning Run">
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <label for="category" class="form-label">Category</label>
+                    <select id="category" class="glass-input" [(ngModel)]="newActivity.category" #category="ngModel"
+                        required>
+                        <option value="">Select Category</option>
+                        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+                    </select>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label for="duration" class="form-label">Duration</label>
+                    <input type="time" id="duration" class="glass-input" [(ngModel)]="newActivity.timeDuration"
+                        #duration="ngModel" required>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label for="date" class="form-label">Date</label>
+                    <input type="text" id="date" class="glass-input" [(ngModel)]="newActivity.date" #date="ngModel"
+                        placeholder="DD-MM-YYYY" required>
+                </div>
+                <div class="col-lg-2 col-md-4">
+                    <label for="days" class="form-label">Day</label>
+                    <select id="days" class="glass-input" [(ngModel)]="newActivity.days" #days="ngModel" required>
+                        <option value="">Select Day</option>
+                        <option *ngFor="let day of daysList" [value]="day">{{ day }}</option>
+                    </select>
+                </div>
+                <div class="col-lg-1 col-md-12 d-flex align-items-end">
+                    <button *ngIf="!editingActivityId" type="button" class="glass-btn w-100"
+                        [disabled]="!newActivity.activityName || category.invalid || duration.invalid || date.invalid || days.invalid || isSaving"
+                        [class.btn-loading]="isSaving" (click)="addActivity()">
+                        Add
+                    </button>
+                    <button *ngIf="editingActivityId" type="button" class="glass-btn w-100"
+                        style="background: var(--secondary-gradient)"
+                        [disabled]="!newActivity.activityName || category.invalid || duration.invalid || date.invalid || days.invalid || isUpdating"
+                        [class.btn-loading]="isUpdating" (click)="updateActivity()">
+                        Save
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Saved Activities Section -->
+        <div class="animate-fade-in" style="animation-delay: 0.2s">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
+                <h3 class="mb-0">Your Activities</h3>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="search-container">
+                        <i class="bi bi-search"></i>
+                        <input type="text" class="glass-input" [(ngModel)]="searchText" placeholder="Filter by name...">
+                    </div>
+                    <span class="badge rounded-pill px-4 py-2"
+                        style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);">
+                        {{ filteredActivities.length }} <span class="fw-normal">Found</span>
+                    </span>
+                </div>
+            </div>
+
+            <div class="glass-card shadow-lg">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0"
+                        style="--bs-table-bg: transparent; --bs-table-border-color: var(--glass-border); border-collapse: separate; border-spacing: 0;">
+                        <thead class="bg-dark bg-opacity-25">
+                            <tr>
+                                <th class="ps-4">Activity</th>
+                                <th>Category</th>
+                                <th>Duration</th>
+                                <th>Date</th>
+                                <th>Day</th>
+                                <th class="pe-4 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let activity of filteredActivities"
+                                class="align-middle"
+                                [class.row-editing]="editingActivityId === activity.id">
+                                <td class="ps-4">
+                                    <div class="text-high-contrast">{{ activity.activityName }}</div>
+                                </td>
+                                <td>
+                                    <span class="badge rounded-pill px-3 py-2"
+                                        style="background: rgba(255, 255, 255, 0.05); color: var(--text-secondary); border: 1px solid var(--glass-border);">
+                                        {{ activity.category }}
+                                    </span>
+                                </td>
+                                <td class="text-white fw-medium">{{ activity.timeDuration }}</td>
+                                <td class="text-readable-secondary">{{ activity.date }}</td>
+                                <td class="text-readable-secondary">{{ activity.days }}</td>
+                                <td class="pe-4 py-4">
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <button class="action-btn text-info" (click)="editActivity(activity)"
+                                            title="Edit">
+                                            <i class="bi bi-pencil-square"></i>
+                                        </button>
+                                        <button class="action-btn text-danger"
+                                            [disabled]="deletingActivityId === activity.id"
+                                            (click)="deleteActivity(activity.id)" title="Delete">
+                                            <i class="bi" [class.bi-trash3]="deletingActivityId !== activity.id"
+                                                [class.spinner-border]="deletingActivityId === activity.id"
+                                                [class.spinner-border-sm]="deletingActivityId === activity.id"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr *ngIf="filteredActivities.length === 0">
+                                <td colspan="6" class="text-center py-5">
+                                    <div class="py-4">
+                                        <i class="bi bi-clipboard-x d-block mb-3"
+                                            style="font-size: 3.5rem; opacity: 0.2;"></i>
+                                        <p class="text-muted fs-5 mb-0">
+                                            {{ searchText ? 'No matches for "' + searchText + '"' : 'Your dashboard is
+                                            empty. Add your first activity above!' }}
+                                        </p>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Guest Landing Section -->
+    <ng-template #guestLanding>
+        <div class="row g-5 align-items-center animate-fade-in" style="animation-delay: 0.1s">
+            <div class="col-lg-7">
+                <div class="glass-card p-5 h-100 d-flex flex-column justify-content-center"
+                    style="background: rgba(255,255,255,0.04)">
+                    <h2 class="mb-4 fw-bold gradient-text">
+                        Elevate Your Daily Routine
+                    </h2>
+                    <p class="fs-5 text-readable-secondary mb-5">
+                        Join a community of achievers using our premium activity tracker to visualize progress, build
+                        lasting habits, and reclaim their time.
+                    </p>
+                    <div class="d-flex flex-wrap gap-4">
+                        <button class="glass-btn px-5 py-3 fs-5" routerLink="/register">Get Started Free</button>
+                        <button class="btn btn-outline-light rounded-pill px-5 py-3 fs-5 hover-effect"
+                            routerLink="/login" style="border-color: var(--glass-border)">Login Now</button>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="row g-4">
+                    <div class="col-12">
+                        <div class="glass-card p-4 hover-effect">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="p-3 rounded-4 shadow-sm"
+                                    style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
+                                    <i class="bi bi-shield-check fs-2"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 text-high-contrast">Secure & Private</h4>
+                                    <p class="small text-readable-secondary mb-0">Enterprise-grade encryption for your personal data.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="glass-card p-4 hover-effect">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="p-3 rounded-4 shadow-sm"
+                                    style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf;">
+                                    <i class="bi bi-lightning-charge fs-2"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 text-high-contrast">Insightful Analytics</h4>
+                                    <p class="small text-readable-secondary mb-0">Real-time visualization of your productivity peaks.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="glass-card p-4 hover-effect">
+                            <div class="d-flex align-items-center gap-4">
+                                <div class="p-3 rounded-4 shadow-sm"
+                                    style="background: rgba(251, 113, 133, 0.15); color: #fb7185;">
+                                    <i class="bi bi-bar-chart fs-2"></i>
+                                </div>
+                                <div>
+                                    <h4 class="mb-1 text-white">Smart Analytics</h4>
+                                    <p class="small text-muted mb-0">Automated habit detection and goal setting.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.3s">
+            <h3 class="display-6 mb-4 fw-bold">Master Your Workflow</h3>
+            <p class="text-secondary mb-5 mx-auto" style="max-width: 600px;">Take control of your schedule today and
+                start your journey towards peak performance with ActivityTracker.</p>
+            <div class="d-flex justify-content-center align-items-center gap-5 opacity-25">
+                <i class="bi bi-apple fs-1"></i>
+                <i class="bi bi-google fs-1"></i>
+                <i class="bi bi-microsoft fs-1"></i>
+                <i class="bi bi-meta fs-1"></i>
+            </div>
+        </div>
+    </ng-template>
+</div>
