@@ -2,7 +2,7 @@
     <div class="glass-card p-5 animate-fade-in shadow-lg" style="width: 100%; max-width: 650px; background: rgba(255,255,255,0.05)">
         <div class="text-center mb-5">
             <h2 class="fw-bold mb-2 text-high-contrast">Create Account</h2>
-            <p class="text-readable-secondary">Join the ActivityTracker community today</p>
+            <p class="text-readable-secondary fw-medium">Join the ActivityTracker community today</p>
         </div>
         
         <form #registerForm="ngForm" (submit)="registerForm.form.valid && onRegister()">
@@ -56,7 +56,7 @@
         </form>
 
         <div class="mt-5 pt-4 border-top border-secondary border-opacity-10 text-center">
-            <p class="text-readable-secondary mb-0">
+            <p class="text-readable-secondary mb-0 fw-medium">
                 Already have an account? <a routerLink="/" class="text-decoration-none fw-bold gradient-text">Sign In</a>
             </p>
         </div>

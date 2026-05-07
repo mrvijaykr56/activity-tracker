@@ -10,12 +10,12 @@
         <div class="col-md-4 d-none d-md-block" *ngIf="isLoggedIn()">
             <div class="glass-card p-4 d-flex align-items-center justify-content-between">
                 <div>
-                    <div class="fw-bold text-uppercase small letter-spacing-1 text-muted mb-1">Overview</div>
+                    <div class="fw-bold text-uppercase small letter-spacing-1 text-readable-secondary mb-1">Overview</div>
                     <div class="h3 mb-0 text-high-contrast">{{ savedActivityListData.length }} <span
-                            class="fs-6 fw-normal text-readable-secondary">Activities</span></div>
+                            class="fs-6 fw-semibold text-readable-secondary">Activities</span></div>
                 </div>
-                <div class="p-3 rounded-circle shadow-lg"
-                    style="background: var(--primary-gradient); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center;">
+                <div class="p-3 rounded-circle"
+                    style="background: var(--primary-gradient); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
                     <i class="bi bi-graph-up text-white fs-3"></i>
                 </div>
             </div>
@@ -96,7 +96,7 @@
                     </div>
                     <span class="badge rounded-pill px-4 py-2"
                         style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);">
-                        {{ filteredActivities.length }} <span class="fw-normal">Found</span>
+                        {{ filteredActivities.length }} <span class="fw-semibold">Found</span>
                     </span>
                 </div>
             </div>
@@ -128,9 +128,9 @@
                                         {{ activity.category }}
                                     </span>
                                 </td>
-                                <td class="text-white fw-medium">{{ activity.timeDuration }}</td>
-                                <td class="text-readable-secondary">{{ activity.date }}</td>
-                                <td class="text-readable-secondary">{{ activity.days }}</td>
+                                <td class="text-white fw-semibold">{{ activity.timeDuration }}</td>
+                                <td class="text-readable-secondary fw-medium">{{ activity.date }}</td>
+                                <td class="text-readable-secondary fw-medium">{{ activity.days }}</td>
                                 <td class="pe-4 py-4">
                                     <div class="d-flex justify-content-center gap-2">
                                         <button class="action-btn text-info" (click)="editActivity(activity)"
@@ -152,7 +152,7 @@
                                     <div class="py-4">
                                         <i class="bi bi-clipboard-x d-block mb-3"
                                             style="font-size: 3.5rem; opacity: 0.2;"></i>
-                                        <p class="text-muted fs-5 mb-0">
+                                        <p class="text-readable-secondary fs-5 mb-0">
                                             {{ searchText ? 'No matches for "' + searchText + '"' : 'Your dashboard is
                                             empty. Add your first activity above!' }}
                                         </p>
@@ -191,7 +191,7 @@
                     <div class="col-12">
                         <div class="glass-card p-4 hover-effect">
                             <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4 shadow-sm"
+                                <div class="p-3 rounded-4"
                                     style="background: rgba(99, 102, 241, 0.15); color: #818cf8;">
                                     <i class="bi bi-shield-check fs-2"></i>
                                 </div>
@@ -206,7 +206,7 @@
                     <div class="col-12">
                         <div class="glass-card p-4 hover-effect">
                             <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4 shadow-sm"
+                                <div class="p-3 rounded-4"
                                     style="background: rgba(45, 212, 191, 0.15); color: #2dd4bf;">
                                     <i class="bi bi-lightning-charge fs-2"></i>
                                 </div>
@@ -221,13 +221,13 @@
                     <div class="col-12">
                         <div class="glass-card p-4 hover-effect">
                             <div class="d-flex align-items-center gap-4">
-                                <div class="p-3 rounded-4 shadow-sm"
+                                <div class="p-3 rounded-4"
                                     style="background: rgba(251, 113, 133, 0.15); color: #fb7185;">
                                     <i class="bi bi-bar-chart fs-2"></i>
                                 </div>
                                 <div>
-                                    <h4 class="mb-1 text-white">Smart Analytics</h4>
-                                    <p class="small text-muted mb-0">Automated habit detection and goal setting.</p>
+                                    <h4 class="mb-1 text-high-contrast">Smart Analytics</h4>
+                                    <p class="small text-readable-secondary mb-0">Automated habit detection and goal setting.</p>
                                 </div>
                             </div>
                         </div>
@@ -238,7 +238,7 @@
 
         <div class="mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.3s">
             <h3 class="display-6 mb-4 fw-bold">Master Your Workflow</h3>
-            <p class="text-secondary mb-5 mx-auto" style="max-width: 600px;">Take control of your schedule today and
+            <p class="text-readable-secondary mb-5 mx-auto" style="max-width: 600px;">Take control of your schedule today and
                 start your journey towards peak performance with ActivityTracker.</p>
             <div class="d-flex justify-content-center align-items-center gap-5 opacity-25">
                 <i class="bi bi-apple fs-1"></i>
