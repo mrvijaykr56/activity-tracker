@@ -124,29 +124,32 @@ body {
 }
 
 .glass-input {
-  background: rgba(255, 255, 255, 0.98);
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  color: #0f172a;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--text-primary);
   padding: 1rem 1.4rem;
   border-radius: 1.25rem;
   transition: var(--transition);
   width: 100%;
   font-size: 1rem;
   font-weight: 500;
-  box-shadow: var(--shadow-md);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1);
 }
 
 .glass-input:focus {
-  background: #ffffff;
-  border-color: #6366f1;
+  background: rgba(255, 255, 255, 0.12);
+  border-color: #818cf8;
   outline: none;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.25), var(--shadow-md);
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.2), var(--shadow-md);
+  color: white;
 }
 
 select.glass-input {
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%231e293b' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='white' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 1.25rem center;
   background-size: 16px 12px;
@@ -154,13 +157,13 @@ select.glass-input {
 }
 
 select.glass-input option {
-  background-color: #ffffff;
-  color: #0f172a;
+  background-color: #1e1b4b; /* Deep indigo for dropdown options to match dark theme */
+  color: #ffffff;
   padding: 12px;
 }
 
 .glass-input::placeholder {
-  color: #64748b; /* Improved contrast for better accessibility on light inputs */
+  color: rgba(255, 255, 255, 0.4);
   opacity: 0.8;
 }
 
@@ -356,3 +359,48 @@ p {
   to { transform: rotate(360deg); }
 }
 
+/* Skeleton Loading Utilities */
+.skeleton-box {
+  display: inline-block;
+  height: 1rem;
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 0.5rem;
+  width: 100%;
+}
+
+.skeleton-box::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.05) 20%,
+    rgba(255, 255, 255, 0.1) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer 2s infinite;
+  content: '';
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.skeleton-card {
+  min-height: 100px;
+  background: var(--surface-bg);
+}
+
+.skeleton-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}

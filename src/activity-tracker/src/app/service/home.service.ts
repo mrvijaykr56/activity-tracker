@@ -12,8 +12,12 @@ export class HomeService {
 
   constructor(private http: HttpClient) { }
 
-  getAllActivity(userId: number, page: number = 0, size: number = 5): Observable<ApiResponse<any>> {
-    return this.http.get<ApiResponse<any>>(`${this.url}/user/${userId}?page=${page}&size=${size}`);
+  getAllActivity(page: number = 0, size: number = 5, search: string = ''): Observable<ApiResponse<any>> {
+    let query = `?page=${page}&size=${size}`;
+    if (search) {
+      query += `&search=${encodeURIComponent(search)}`;
+    }
+    return this.http.get<ApiResponse<any>>(`${this.url}/my-activities${query}`);
   }
 
   saveActivity(data: any): Observable<ApiResponse<Activity>> {

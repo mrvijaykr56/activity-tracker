@@ -32,9 +32,18 @@ public class ActivityService {
     public List<Activity> getAllActivities() {
         return activityRepository.findAll();
     }
+
+    // Retrieve single activity
+    public Activity getActivityById(Long id) {
+        return activityRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Activity not found with id: " + id));
+    }
     
-    // Retrieve all activities by passing user id with pagination
-    public Page<Activity> getActivitiesByUserId(Long userId, Pageable pageable) {
+    // Retrieve all activities by passing user id with pagination and optional search
+    public Page<Activity> getActivitiesByUserId(Long userId, String search, Pageable pageable) {
+        if (search != null && !search.trim().isEmpty()) {
+            return activityRepository.findByUserIdAndActivityNameContainingIgnoreCase(userId, search, pageable);
+        }
         return activityRepository.findByUserId(userId, pageable);
     }
 

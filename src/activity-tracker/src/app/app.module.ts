@@ -12,6 +12,7 @@ import { FooterComponent } from './component/footer/footer.component';
 import { RegisterComponent } from './component/register/register.component';
 import { LoadingComponent } from './shared/loading.component';
 import { NotificationComponent } from './shared/notification.component';
+import { ConfirmComponent } from './shared/confirm.component';
 import { LoadingInterceptor } from './interceptor/loading.interceptor';
 import { ErrorInterceptor } from './interceptor/error.interceptor';
 import { AuthInterceptor } from './interceptor/auth.interceptor';
@@ -25,7 +26,8 @@ import { AuthInterceptor } from './interceptor/auth.interceptor';
     FooterComponent,
     RegisterComponent,
     LoadingComponent,
-    NotificationComponent
+    NotificationComponent,
+    ConfirmComponent
   ],
   imports: [
     BrowserModule,

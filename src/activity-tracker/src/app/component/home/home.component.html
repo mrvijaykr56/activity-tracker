@@ -11,12 +11,28 @@
             <div class="glass-card p-4 d-flex align-items-center justify-content-between">
                 <div>
                     <div class="fw-bold text-uppercase small letter-spacing-1 text-readable-secondary mb-1">Overview</div>
-                    <div class="h3 mb-0 text-high-contrast">{{ totalElements }} <span
+                    <div class="h2 mb-0 text-high-contrast">{{ totalElements }} <span
                             class="fs-6 fw-semibold text-readable-secondary">Activities</span></div>
                 </div>
                 <div class="p-3 rounded-circle"
                     style="background: var(--primary-gradient); width: 60px; height: 60px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);">
                     <i class="bi bi-graph-up text-white fs-3"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Category Quick Stats -->
+    <div class="row g-4 mb-5 animate-fade-in" style="animation-delay: 0.1s" *ngIf="isLoggedIn()">
+        <div class="col-lg-3 col-md-6" *ngFor="let cat of categories.slice(0, 4); let i = index">
+            <div class="glass-card p-4 hover-effect" [style.animation-delay]="0.1 + (i * 0.05) + 's'">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <span class="text-readable-secondary small fw-bold text-uppercase letter-spacing-1">{{ cat }}</span>
+                    <i class="bi bi-tag opacity-50"></i>
+                </div>
+                <div class="h4 mb-0 text-high-contrast">
+                    {{ getCategoryCount(cat) }}
+                    <span class="fs-6 fw-normal text-muted ms-1">Records</span>
                 </div>
             </div>
         </div>
@@ -43,33 +59,32 @@
                     <div class="col-lg-3 col-md-6">
                         <label for="activityName" class="form-label">Activity Name</label>
                         <input type="text" id="activityName" class="glass-input" formControlName="activityName"
-                            placeholder="e.g. Morning Run">
+                            placeholder="e.g. Morning Run" aria-label="Activity Name">
                         <div *ngIf="activityForm.get('activityName')?.touched && activityForm.get('activityName')?.invalid" class="mt-2 small text-danger">
                             Name is required (min 3 chars).
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-6">
                         <label for="category" class="form-label">Category</label>
-                        <select id="category" class="glass-input" formControlName="category">
+                        <select id="category" class="glass-input" formControlName="category" aria-label="Select Category">
                             <option value="">Select Category</option>
                             <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
                         </select>
                     </div>
                     <div class="col-lg-2 col-md-4">
                         <label for="duration" class="form-label">Duration</label>
-                        <input type="time" id="duration" class="glass-input" formControlName="timeDuration">
+                        <input type="time" id="duration" class="glass-input" formControlName="timeDuration" aria-label="Time Duration">
                     </div>
                     <div class="col-lg-2 col-md-4">
                         <label for="date" class="form-label">Date</label>
-                        <input type="text" id="date" class="glass-input" formControlName="date"
-                            placeholder="DD-MM-YYYY">
+                        <input type="date" id="date" class="glass-input" formControlName="date" aria-label="Select Date">
                         <div *ngIf="activityForm.get('date')?.touched && activityForm.get('date')?.invalid" class="mt-2 small text-danger">
-                            Format: DD-MM-YYYY
+                            Please select a valid date.
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-4">
                         <label for="days" class="form-label">Day</label>
-                        <select id="days" class="glass-input" formControlName="days">
+                        <select id="days" class="glass-input" formControlName="days" aria-label="Select Day">
                             <option value="">Select Day</option>
                             <option *ngFor="let day of daysList" [value]="day">{{ day }}</option>
                         </select>
@@ -77,7 +92,8 @@
                     <div class="col-lg-1 col-md-12 d-flex align-items-end">
                         <button type="submit" class="glass-btn w-100"
                             [disabled]="activityForm.invalid || isSaving || isUpdating"
-                            [class.btn-loading]="isSaving || isUpdating">
+                            [class.btn-loading]="isSaving || isUpdating"
+                            [attr.aria-label]="editingActivityId ? 'Save Activity Changes' : 'Add New Activity'">
                             {{ editingActivityId ? 'Save' : 'Add' }}
                         </button>
                     </div>
@@ -88,11 +104,11 @@
         <!-- Saved Activities Section -->
         <div class="animate-fade-in" style="animation-delay: 0.2s">
             <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
-                <h3 class="mb-0">Your Activities</h3>
+                <h2 class="mb-0">Your Activities</h2>
                 <div class="d-flex align-items-center gap-3">
                     <div class="search-container">
                         <i class="bi bi-search"></i>
-                        <input type="text" class="glass-input" [(ngModel)]="searchText" placeholder="Filter by name...">
+                        <input type="text" class="glass-input" [(ngModel)]="searchText" (ngModelChange)="onSearch()" placeholder="Search activities..." aria-label="Search activities">
                     </div>
                     <span class="badge rounded-pill px-4 py-2"
                         style="background: rgba(99, 102, 241, 0.15); color: #818cf8; border: 1px solid rgba(99, 102, 241, 0.25);">
@@ -116,7 +132,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr *ngFor="let activity of filteredActivities"
+                            <tr *ngFor="let activity of savedActivityListData"
                                 class="align-middle"
                                 [class.row-editing]="editingActivityId === activity.id">
                                 <td class="ps-4">
@@ -134,12 +150,12 @@
                                 <td class="pe-4 py-4">
                                     <div class="d-flex justify-content-center gap-2">
                                         <button class="action-btn text-info" (click)="editActivity(activity)"
-                                            title="Edit">
+                                            title="Edit" aria-label="Edit Activity">
                                             <i class="bi bi-pencil-square"></i>
                                         </button>
                                         <button class="action-btn text-danger"
                                             [disabled]="deletingActivityId === activity.id"
-                                            (click)="deleteActivity(activity.id)" title="Delete">
+                                            (click)="deleteActivity(activity.id)" title="Delete" aria-label="Delete Activity">
                                             <i class="bi" [class.bi-trash3]="deletingActivityId !== activity.id"
                                                 [class.spinner-border]="deletingActivityId === activity.id"
                                                 [class.spinner-border-sm]="deletingActivityId === activity.id"></i>
@@ -147,7 +163,7 @@
                                     </div>
                                 </td>
                             </tr>
-                            <tr *ngIf="filteredActivities.length === 0">
+                            <tr *ngIf="savedActivityListData.length === 0">
                                 <td colspan="6" class="text-center py-5">
                                     <div class="py-4">
                                         <i class="bi bi-clipboard-x d-block mb-3"
@@ -170,17 +186,20 @@
                     Showing Page {{ currentPage + 1 }} of {{ totalPages }}
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="action-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)">
+                    <button class="action-btn" [disabled]="currentPage === 0" (click)="onPageChange(currentPage - 1)"
+                        title="Previous Page" aria-label="Previous Page">
                         <i class="bi bi-chevron-left"></i>
                     </button>
                     <button *ngFor="let p of [].constructor(totalPages); let i = index" 
                         class="action-btn" 
                         [class.bg-primary]="i === currentPage"
                         [class.text-white]="i === currentPage"
-                        (click)="onPageChange(i)">
+                        (click)="onPageChange(i)"
+                        [attr.aria-label]="'Go to page ' + (i + 1)">
                         {{ i + 1 }}
                     </button>
-                    <button class="action-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)">
+                    <button class="action-btn" [disabled]="currentPage === totalPages - 1" (click)="onPageChange(currentPage + 1)"
+                        title="Next Page" aria-label="Next Page">
                         <i class="bi bi-chevron-right"></i>
                     </button>
                 </div>
@@ -219,7 +238,7 @@
                                     <i class="bi bi-shield-check fs-2"></i>
                                 </div>
                                 <div>
-                                    <h4 class="mb-1 text-high-contrast">Secure & Private</h4>
+                                    <h3 class="h4 mb-1 text-high-contrast">Secure & Private</h3>
                                     <p class="small text-readable-secondary mb-0">Enterprise-grade encryption for your personal data.
                                     </p>
                                 </div>
@@ -234,7 +253,7 @@
                                     <i class="bi bi-lightning-charge fs-2"></i>
                                 </div>
                                 <div>
-                                    <h4 class="mb-1 text-high-contrast">Insightful Analytics</h4>
+                                    <h3 class="h4 mb-1 text-high-contrast">Insightful Analytics</h3>
                                     <p class="small text-readable-secondary mb-0">Real-time visualization of your productivity peaks.
                                     </p>
                                 </div>
@@ -249,7 +268,7 @@
                                     <i class="bi bi-bar-chart fs-2"></i>
                                 </div>
                                 <div>
-                                    <h4 class="mb-1 text-high-contrast">Smart Analytics</h4>
+                                    <h3 class="h4 mb-1 text-high-contrast">Smart Analytics</h3>
                                     <p class="small text-readable-secondary mb-0">Automated habit detection and goal setting.</p>
                                 </div>
                             </div>
@@ -260,7 +279,7 @@
         </div>
 
         <div class="mt-5 pt-5 text-center animate-fade-in" style="animation-delay: 0.3s">
-            <h3 class="display-6 mb-4 fw-bold">Master Your Workflow</h3>
+            <h2 class="display-6 mb-4 fw-bold">Master Your Workflow</h2>
             <p class="text-readable-secondary mb-5 mx-auto" style="max-width: 600px;">Take control of your schedule today and
                 start your journey towards peak performance with ActivityTracker.</p>
             <div class="d-flex justify-content-center align-items-center gap-5 opacity-25">

@@ -12,4 +12,7 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     // Custom method to fetch activities by user ID with pagination
     Page<Activity> findByUserId(Long userId, Pageable pageable);
+
+    // Method to search activities by user ID and activity name
+    Page<Activity> findByUserIdAndActivityNameContainingIgnoreCase(Long userId, String activityName, Pageable pageable);
 }
